@@ -10,7 +10,7 @@ export default function Dashboard() {
           <Link href="/Courses/1234" className="wd-dashboard-course-link">
             <Image src="/images/css-logo.jpg" width={200} height={150} />
             <div>
-              <h5> CS1234 React JS </h5>
+              <h5> CS1234 CSS </h5>
               <p className="wd-dashboard-course-title">
                 Full Stack software developer
               </p>
@@ -19,10 +19,10 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className="wd-dashboard-course">
-          <Link href="/Courses/1234" className="wd-dashboard-course-link">
+          <Link href="/Courses/4567" className="wd-dashboard-course-link">
             <Image src="/images/react-logo.jpg" width={200} height={150} />
             <div>
-              <h5> CS1234 React JS </h5>
+              <h5> CS4567 React JS </h5>
               <p className="wd-dashboard-course-title">
                 Full Stack software developer
               </p>
@@ -30,10 +30,10 @@ export default function Dashboard() {
             </div>
           </Link>
         </div><div className="wd-dashboard-course">
-          <Link href="/Courses/1234" className="wd-dashboard-course-link">
+          <Link href="/Courses/6789" className="wd-dashboard-course-link">
             <Image src="/html-logo.jpg" width={200} height={150} />
             <div>
-              <h5> CS1234 React JS </h5>
+              <h5> CS6789 HTML </h5>
               <p className="wd-dashboard-course-title">
                 Full Stack software developer
               </p>
