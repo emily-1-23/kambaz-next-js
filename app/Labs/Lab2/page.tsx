@@ -1,3 +1,4 @@
+import { Container } from "react-bootstrap";
 import BackgroundColors from "./BackgroundColors";
 import Borders from "./Borders";
 import Corners from "./Corners";
@@ -12,8 +13,10 @@ import Padding from "./Padding";
 import Positions from "./Positions";
 import ReactIcons from "./ReactIcons";
 import Zindex from "./Zindex";
+import BootstrapGrids from "./BootstrapGrids";
 export default function Lab2() {
   return (
+    <Container>
     <div id="wd-lab2">
       <h2>Lab 2 - Cascading Style Sheets</h2>
       <h3>Styling with the STYLE attribute</h3>
@@ -72,7 +75,9 @@ This heading has same style as paragraph above
 <GridLayout/>
 <Flex/>
 <ReactIcons/>
+<BootstrapGrids/>
     </div>
+    </Container>
     );
     }
     
