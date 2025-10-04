@@ -28,7 +28,7 @@ export default function BootstrapLists() {
                     href="https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_(novel)">
       2001 A Space Odyssey </ListGroupItem>
     <ListGroupItem action disabled href="https://en.wikipedia.org/wiki/Ender%27s_Game">
-      Ender's Game         </ListGroupItem>
+      Ender&apos;s Game         </ListGroupItem>
     <ListGroupItem action onClick={() => alert("New book added")}>
       Add another book     </ListGroupItem>
   </ListGroup>
