@@ -12,9 +12,9 @@ export default function Dashboard() {
          <Row xs={1} md={5} className="g-4">
 
 {courses.map((course) => (
-   <Col className="wd-dashboard-course" style={{ width: "300px" }}>
+   <Col key={course._id} className="wd-dashboard-course" style={{ width: "300px" }}>
     <Card>
-     <Link key={course._id} href={`/Courses/${course._id}/Home`}
+     <Link href={`/Courses/${course._id}/Home`}
            className="wd-dashboard-course-link text-decoration-none text-dark">
       <CardImg variant="top" src="/images/html-logo.jpg" width="100%" height={160}/>
       <CardBody>
@@ -32,4 +32,5 @@ export default function Dashboard() {
   </Row>
         </div>
         </div>
-);}
+  );
+}
