@@ -1,12 +1,14 @@
 import { ReactNode } from "react";
 import KambazNavigation from "./Navigation";
 import "./styles.css";
+import Breadcrumb from "./Courses/[cid]/Breadcrumb";
 export default function KambazLayout({ 
   children 
 }: Readonly<{ children: ReactNode }>) {
  return (
   <div id="wd-kambaz">
    <div className="d-flex">
+
     <div>
            <KambazNavigation /> 
            </div>

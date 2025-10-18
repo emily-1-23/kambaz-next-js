@@ -1,17 +1,22 @@
+"use client"
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { BsGripVertical, BsPlus } from "react-icons/bs";
 import { FaSearch } from "react-icons/fa";
-import { ListGroup, ListGroupItem } from "react-bootstrap";
+import * as db from "../../../Database";
 
 export default function Assignments() {
+  const { cid } = useParams();
+  const { assignments } = db;
+  
+  // Filter assignments for the current course
+  const courseAssignments = assignments.filter(
+    (assignment: any) => assignment.course === cid
+  );
+
   return (
     <div id="wd-assignments">
-      
-      
-      <div id="wd-assignments">
-     
       <div className="d-flex justify-content-between align-items-center mb-4">
-        
         <div className="position-relative" style={{ width: '300px' }}>
           <FaSearch 
             className="position-absolute text-muted" 
@@ -41,9 +46,9 @@ export default function Assignments() {
         </div>
       </div>
 
-<ul className="list-group rounded-0" id="wd-assignment-list">
-<li className="list-group-item p-0 mb-5 fs-5 border-gray">
-<div className="wd-title p-3 ps-2 bg-secondary d-flex justify-content-between align-items-center">
+      <ul className="list-group rounded-0" id="wd-assignment-list">
+        <li className="list-group-item p-0 mb-5 fs-5 border-gray">
+          <div className="wd-title p-3 ps-2 bg-secondary d-flex justify-content-between align-items-center">
             <div>
               <BsGripVertical size={24} className="me-2" />
               <strong>ASSIGNMENTS</strong>
@@ -55,81 +60,41 @@ export default function Assignments() {
               </button>
             </div>
           </div>
-            <ul className="list-group rounded-0">
-            <li className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex">
-              <div 
-                className="me-3" 
-                style={{ 
-                  borderLeft: '4px solid green', 
-                  paddingLeft: '10px' 
-                }}
+          
+          <ul className="list-group rounded-0">
+            {courseAssignments.map((assignment: any) => (
+              <li 
+                key={assignment._id}
+                className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex"
               >
-                <BsGripVertical size={24} className="me-2 text-muted" />
-              </div>
-              <div className="flex-grow-1">
-                <Link 
-                  href="/Courses/1234/Assignments/123" 
-                  className="wd-assignment-link text-decoration-none fw-bold text-dark"
+                <div 
+                  className="me-3" 
+                  style={{ 
+                    borderLeft: '4px solid green', 
+                    paddingLeft: '10px' 
+                  }}
                 >
-                  A1 - ENV + HTML
-                </Link>
-                <div className="text-muted small mt-1">
-                  <span className="text-danger">Multiple modules</span> | <strong>not available until</strong> May 6 at 12:00 am | <strong>Due</strong> May 13 at 11:59pm | 100 pts
+                  <BsGripVertical size={24} className="me-2 text-muted" />
                 </div>
-              </div>
-            </li>
-            </ul>
-
-            <li className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex">
-              <div 
-                className="me-3" 
-                style={{ 
-                  borderLeft: '4px solid green', 
-                  paddingLeft: '10px' 
-                }}
-              >
-                <BsGripVertical size={24} className="me-2 text-muted" />
-              </div>
-
-              <div className="flex-grow-1">
-                <Link 
-                  href="/Courses/1234/Assignments/123" 
-                  className="wd-assignment-link text-decoration-none fw-bold text-dark"
-                >
-                  A2 - CSS + BOOTSTRAP
-                </Link>
-                <div className="text-muted small mt-1">
-                  <span className="text-danger">Multiple modules</span> | <strong>not available until</strong> May 6 at 12:00 am | <strong>Due</strong> May 13 at 11:59pm | 100 pts
+                <div className="flex-grow-1">
+                  <Link 
+                    href={`/Courses/${cid}/Assignments/${assignment._id}`}
+                    className="wd-assignment-link text-decoration-none fw-bold text-dark"
+                  >
+                    {assignment.title}
+                  </Link>
+                  <div className="text-muted small mt-1">
+                    <span className="text-danger">Multiple modules</span> | 
+                    <strong> not available until</strong> {assignment.availableFrom} | 
+                    <strong> Due</strong> {assignment.dueDate} | 
+                    {assignment.points} pts
+                  </div>
                 </div>
-              </div>
-            </li>
-
-            <li className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex">
-              <div 
-                className="me-3" 
-                style={{ 
-                  borderLeft: '4px solid green', 
-                  paddingLeft: '10px' 
-                }}
-              >
-                <BsGripVertical size={24} className="me-2 text-muted" />
-              </div>
-              <div className="flex-grow-1">
-                <Link 
-                  href="/Courses/1234/Assignments/123" 
-                  className="wd-assignment-link text-decoration-none fw-bold text-dark"
-                >
-                  A3 - JAVASCRIPT + REACT
-                </Link>
-                <div className="text-muted small mt-1">
-                  <span className="text-danger">Multiple modules</span> | <strong>not available until</strong> May 6 at 12:00 am | <strong>Due</strong> May 13 at 11:59pm | 100 pts
-                </div>
-              </div>
-            </li>
-            
-</li>
-
-</ul>
-
-    </div></div>
-);}
+              </li>
+            ))}
+          </ul>
+        </li>
+      </ul>
+    </div>
+  );
+}
