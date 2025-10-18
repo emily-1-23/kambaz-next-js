@@ -14,7 +14,7 @@ export default function Dashboard() {
 {courses.map((course) => (
    <Col className="wd-dashboard-course" style={{ width: "300px" }}>
     <Card>
-     <Link href={`/Courses/${course._id}/Home`}
+     <Link key={course._id} href={`/Courses/${course._id}/Home`}
            className="wd-dashboard-course-link text-decoration-none text-dark">
       <CardImg variant="top" src="/images/html-logo.jpg" width="100%" height={160}/>
       <CardBody>
