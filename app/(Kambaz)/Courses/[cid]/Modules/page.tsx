@@ -19,7 +19,7 @@ export default function Modules() {
     {modules
           .filter((module: any) => module.course === cid)
           .map((module: any) => (
-          <ListGroupItem className="wd-module p-0 mb-5 fs-5 border-gray">
+          <ListGroupItem key={module._id} className="wd-module p-0 mb-5 fs-5 border-gray">
             <div className="wd-title p-3 ps-2 bg-secondary">
               <BsGripVertical className="me-2 fs-3" /> {module.name} <ModuleControlButtons />
             </div>
@@ -29,7 +29,8 @@ export default function Modules() {
                   <ListGroupItem key={lesson._id} className="wd-lesson p-3 ps-1">
                     <BsGripVertical className="me-2 fs-3" /> {lesson.name} <LessonControlButtons />
                   </ListGroupItem>
-                ))}</ListGroup>)}</ListGroupItem>))}</ListGroup>...);
+                ))}</ListGroup>)}</ListGroupItem>))}</ListGroup>
 
     </div>
-);}
+  );
+}
