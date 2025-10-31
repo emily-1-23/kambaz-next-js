@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import * as db from "../../../Database";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
@@ -10,10 +11,15 @@ import ModuleControlButtons from "./ModuleControlButtons";
 
 export default function Modules() {
     const { cid } = useParams();
-  const modules = db.modules;
+const [modules, setModules] = useState<any[]>(db.modules);
   return (
     <div>
-      <ModulesControls /><br /><br /><br /><br />
+      <ModulesControls moduleName={""} setModuleName={function (title: string): void {
+        throw new Error("Function not implemented.");
+      } } addModule={function (): void {
+        throw new Error("Function not implemented.");
+      } } />
+      <br /><br /><br /><br />
 
   <ListGroup className="rounded-0" id="wd-modules">
     {modules
