@@ -1,17 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+"use client"
 import { useSelector, useDispatch } from "react-redux";
 import { increment, decrement } from "./counterReducer";
+import { RootState } from "../../store";
+
 export default function CounterRedux() {
-  const { count } = useSelector((state: any) => state.counterReducer);
+  const { count } = useSelector((state: RootState) => state.counterReducer);
   const dispatch = useDispatch();
   return (
     <div id="wd-counter-redux">
-      <h2>Counter Redux</h2>
-      <h3>{count}</h3>
-      <button onClick={() => dispatch(increment())}
-              id="wd-counter-redux-increment-click"> Increment </button>
-      <button onClick={() => dispatch(decrement())}
-              id="wd-counter-redux-decrement-click"> Decrement </button>
-      <hr/>
+      <h3>Counter Redux</h3>
+      <h4>{count}</h4>
+      <button onClick={() => dispatch(increment())} id="wd-counter-increment-click">
+        Increment
+      </button>
+      <button onClick={() => dispatch(decrement())} id="wd-counter-decrement-click">
+        Decrement
+      </button>
     </div>
-);}
+  );
+}
