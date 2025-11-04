@@ -5,10 +5,11 @@ import CourseNavigation from "./Navigation";
 import { useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import { FaAlignJustify } from "react-icons/fa";
+import { RootState } from "../../store";
 
 export default function CoursesLayout({ children }: { children: ReactNode }) {
   const { cid } = useParams();
-  const { courses } = useSelector((state: any) => state.coursesReducer);
+  const { courses } = useSelector((state: RootState) => state.coursesReducer);
   const course = courses.find((course: any) => course._id === cid);
   const [showNavigation, setShowNavigation] = useState(true);
 

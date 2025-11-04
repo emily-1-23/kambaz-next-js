@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { redirect } from "next/dist/client/components/navigation";
+import { redirect } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "../reducer";
@@ -12,7 +12,7 @@ import { RootState } from "../../store";
 export default function Profile() {
   const [profile, setProfile] = useState<any>({});
  const dispatch = useDispatch();
- const { currentUser } = useSelector((state: any) => state.accountReducer);
+ const { currentUser } = useSelector((state: RootState) => state.accountReducer) as any;
  const fetchProfile = () => {
    if (!currentUser) return redirect("/Account/Signin");
    setProfile(currentUser);
@@ -65,4 +65,3 @@ export default function Profile() {
      )}
    </div>
 );}
-

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Nav, NavItem, NavLink } from "react-bootstrap";
 import { useSelector } from "react-redux";
+import { RootState } from "../store";
+
 export default function AccountNavigation() {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer) as any;
   const links = currentUser ? ["Profile"] : ["Signin", "Signup"];
  return (
    <div id="wd-account-navigation">
