@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { FaPlusCircle } from "react-icons/fa";
 import { TiDelete } from "react-icons/ti";
