@@ -4,7 +4,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 
 const initialState = {
-  courses: [], // ← Changed to empty array since we fetch from server
+  courses: [] as any[], // ← Changed to empty array since we fetch from server
 };
 
 const coursesSlice = createSlice({
