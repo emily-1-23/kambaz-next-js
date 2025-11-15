@@ -1,19 +1,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../../store';
+import { setAssignments, deleteAssignment as deleteAssignmentAction } from './reducer';
+import * as client from './client';
 import { BsGripVertical, BsPlus } from "react-icons/bs";
-import { FaSearch } from "react-icons/fa";
-import * as db from "../../../Database";
+import { FaSearch, FaTrash } from "react-icons/fa";
 
 export default function Assignments() {
   const { cid } = useParams();
-  const { assignments } = db;
-  
-  // Filter assignments for the current course
-  const courseAssignments = assignments.filter(
-    (assignment: any) => assignment.course === cid
-  );
+  const dispatch = useDispatch();
+  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+
+console.log("Current course ID:", cid); // ← Add this
+  console.log("Assignments from state:", assignments);
+
+  const fetchAssignments = async () => {
+    const assignments = await client.findAssignmentsForCourse(cid as string);
+    dispatch(setAssignments(assignments));
+  };
+
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    await client.deleteAssignment(assignmentId);
+    dispatch(deleteAssignmentAction(assignmentId));
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, []);
 
   return (
     <div id="wd-assignments">
@@ -38,12 +55,13 @@ export default function Assignments() {
           >
             <BsPlus size={20} className="me-1" /> Group
           </button>
-          <button 
-            id="wd-add-assignment" 
+          <Link 
+            href={`/Courses/${cid}/Assignments/new`}
             className="btn btn-danger"
+            id="wd-add-assignment"
           >
             <BsPlus size={20} className="me-1" /> Assignment
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -63,34 +81,45 @@ export default function Assignments() {
           </div>
           
           <ul className="list-group rounded-0">
-            {courseAssignments.map((assignment: any) => (
+            {assignments.map((assignment: any) => (
               <li 
                 key={assignment._id}
-                className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex"
+                className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex justify-content-between align-items-center"
               >
-                <div 
-                  className="me-3" 
-                  style={{ 
-                    borderLeft: '4px solid green', 
-                    paddingLeft: '10px' 
-                  }}
-                >
-                  <BsGripVertical size={24} className="me-2 text-muted" />
-                </div>
-                <div className="flex-grow-1">
-                  <Link 
-                    href={`/Courses/${cid}/Assignments/${assignment._id}`}
-                    className="wd-assignment-link text-decoration-none fw-bold text-dark"
+                <div className="d-flex align-items-start flex-grow-1">
+                  <div 
+                    className="me-3" 
+                    style={{ 
+                      borderLeft: '4px solid green', 
+                      paddingLeft: '10px' 
+                    }}
                   >
-                    {assignment.title}
-                  </Link>
-                  <div className="text-muted small mt-1">
-                    <span className="text-danger">Multiple modules</span> | 
-                    <strong> not available until</strong> {assignment.availableFrom} | 
-                    <strong> Due</strong> {assignment.dueDate} | 
-                    {assignment.points} pts
+                    <BsGripVertical size={24} className="me-2 text-muted" />
+                  </div>
+                  <div className="flex-grow-1">
+                    <Link 
+                      href={`/Courses/${cid}/Assignments/${assignment._id}`}
+                      className="wd-assignment-link text-decoration-none fw-bold text-dark"
+                    >
+                      {assignment.title}
+                    </Link>
+                    <div className="text-muted small mt-1">
+                      <span className="text-danger">Multiple modules</span> | 
+                      <strong> not available until</strong> {assignment.availableFrom} | 
+                      <strong> Due</strong> {assignment.dueDate} | 
+                      {assignment.points} pts
+                    </div>
                   </div>
                 </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteAssignment(assignment._id);
+                  }}
+                  className="btn btn-danger btn-sm"
+                >
+                  <FaTrash />
+                </button>
               </li>
             ))}
           </ul>

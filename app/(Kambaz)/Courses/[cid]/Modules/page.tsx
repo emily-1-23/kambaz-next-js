@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import * as db from "../../../Database";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../store";
+import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
+import * as client from "../../client";
 import { ListGroup, ListGroupItem } from "react-bootstrap";
 import ModulesControls from "./ModulesControls";
 import { BsGripVertical } from "react-icons/bs";
@@ -10,33 +13,54 @@ import LessonControlButtons from "./LessonControlButtons";
 import ModuleControlButtons from "./ModuleControlButtons";
 
 export default function Modules() {
-    const { cid } = useParams();
-const [modules, setModules] = useState<any[]>(db.modules);
+  const { cid } = useParams();
+  const [moduleName, setModuleName] = useState("");
+  const { modules } = useSelector((state: RootState) => state.modulesReducer);
+  const dispatch = useDispatch();
+
+  const fetchModules = async () => {
+    const modules = await client.findModulesForCourse(cid as string);
+    dispatch(setModules(modules));
+  };
+
+  useEffect(() => {
+    fetchModules();
+  }, []);
+
+  const handleAddModule = () => {
+    dispatch(addModule({ name: moduleName, course: cid }));
+    setModuleName("");
+  };
+
   return (
     <div>
-      <ModulesControls moduleName={""} setModuleName={function (title: string): void {
-        throw new Error("Function not implemented.");
-      } } addModule={function (): void {
-        throw new Error("Function not implemented.");
-      } } />
+      <ModulesControls 
+        moduleName={moduleName} 
+        setModuleName={setModuleName} 
+        addModule={handleAddModule} 
+      />
       <br /><br /><br /><br />
 
-  <ListGroup className="rounded-0" id="wd-modules">
-    {modules
-          .filter((module: any) => module.course === cid)
-          .map((module: any) => (
+      <ListGroup className="rounded-0" id="wd-modules">
+        {modules.map((module: any) => (
           <ListGroupItem key={module._id} className="wd-module p-0 mb-5 fs-5 border-gray">
             <div className="wd-title p-3 ps-2 bg-secondary">
-              <BsGripVertical className="me-2 fs-3" /> {module.name} <ModuleControlButtons />
+              <BsGripVertical className="me-2 fs-3" /> {module.name} 
+              <ModuleControlButtons />
             </div>
             {module.lessons && (
               <ListGroup className="wd-lessons rounded-0">
                 {module.lessons.map((lesson: any) => (
                   <ListGroupItem key={lesson._id} className="wd-lesson p-3 ps-1">
-                    <BsGripVertical className="me-2 fs-3" /> {lesson.name} <LessonControlButtons />
+                    <BsGripVertical className="me-2 fs-3" /> {lesson.name} 
+                    <LessonControlButtons />
                   </ListGroupItem>
-                ))}</ListGroup>)}</ListGroupItem>))}</ListGroup>
-
+                ))}
+              </ListGroup>
+            )}
+          </ListGroupItem>
+        ))}
+      </ListGroup>
     </div>
   );
 }
