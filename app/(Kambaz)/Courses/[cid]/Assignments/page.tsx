@@ -1,130 +1,202 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
-import { useEffect } from 'react';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../../store';
-import { setAssignments, deleteAssignment as deleteAssignmentAction } from './reducer';
-import * as client from './client';
-import { BsGripVertical, BsPlus } from "react-icons/bs";
-import { FaSearch, FaTrash } from "react-icons/fa";
+"use client";
+
+import Link from "next/link";
+import * as client from "../Assignments/client";
+import { setAssignments } from "../Assignments/reducer";
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { ListGroup, ListGroupItem, Button, FormControl, Modal } from "react-bootstrap";
+import { BsGripVertical, BsPlus, BsTrash } from "react-icons/bs";
+import { FaSearch, FaCheckCircle, FaCircle, FaCaretDown } from "react-icons/fa";
+import { IoEllipsisVertical } from "react-icons/io5";
+import { MdOutlineAssignment } from "react-icons/md";
+import { useSelector, useDispatch } from "react-redux";
+import "../../../styles.css";
+import { RootState } from "../../../store";
+
+// --- Helper to format ISO date strings ---
+function formatDate(dateStr: string) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  const formattedDate = date.toLocaleDateString("en-US", options);
+  let hours = date.getHours();
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12 === 0 ? 12 : hours % 12;
+  return `${formattedDate} at ${hours}:${minutes}${ampm}`;
+}
+
+// --- Green Checkmark icon ---
+function GreenCheckmark() {
+  return (
+    <span className="position-relative d-inline-block me-2" style={{ width: "20px", height: "20px" }}>
+      <FaCircle className="text-white fs-6 position-absolute top-0 start-0" />
+      <FaCheckCircle className="text-success fs-5 position-absolute top-0 start-0" />
+    </span>
+  );
+}
+
+// --- Assignment group header buttons ---
+function AssignmentControlButtons() {
+  return (
+    <div className="d-flex align-items-center">
+      <div className="d-flex justify-content-center align-items-center me-3 px-3 py-2 rounded-pill border bg-light text-dark small">
+        40% of Total
+      </div>
+      <BsPlus className="fs-4 me-3" />
+      <IoEllipsisVertical className="fs-4" />
+    </div>
+  );
+}
+
+// --- Buttons for individual assignments ---
+function LessonControlButtons({ onDelete, isFaculty }: { onDelete: () => void; isFaculty: boolean }) {
+  return (
+    <div className="d-flex align-items-center float-end">
+      <GreenCheckmark />
+      {isFaculty && (
+        <BsTrash className="text-danger fs-5 mx-3" role="button" onClick={onDelete} />
+      )}
+      <IoEllipsisVertical className="fs-4" />
+    </div>
+  );
+}
 
 export default function Assignments() {
-  const { cid } = useParams();
+  const params = useParams();
+  const router = useRouter();
   const dispatch = useDispatch();
-  const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
+  const courseId = params.cid as string;
 
-console.log("Current course ID:", cid); // ← Add this
-  console.log("Assignments from state:", assignments);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
 
+  // Redux
+  const assignments = useSelector((state: RootState) =>
+    state.assignmentsReducer.assignments.filter((a: any) => a.course === courseId)
+  );
+
+  const currentUser = useSelector((state: RootState) => state.accountReducer.currentUser) as { role: string } | null;
+
+  // --- CRUD Operations ---
   const fetchAssignments = async () => {
-    const assignments = await client.findAssignmentsForCourse(cid as string);
-    dispatch(setAssignments(assignments));
+    const data = await client.findAssignmentsForCourse(courseId);
+    dispatch(setAssignments(data));
   };
 
-  const handleDeleteAssignment = async (assignmentId: string) => {
+  const onRemoveAssignment = async (assignmentId: string) => {
     await client.deleteAssignment(assignmentId);
-    dispatch(deleteAssignmentAction(assignmentId));
+    fetchAssignments(); // refetch from DB
   };
 
   useEffect(() => {
-    fetchAssignments();
-  }, []);
+    if (courseId) fetchAssignments();
+  }, [courseId]);
+
+  const handleDelete = (assignment: any) => {
+    setSelectedAssignment(assignment);
+    setShowModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedAssignment) onRemoveAssignment(selectedAssignment._id);
+    setShowModal(false);
+  };
 
   return (
-    <div id="wd-assignments">
+    <div id="wd-assignments" className="p-3">
+      {/* Search bar and top buttons */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="position-relative" style={{ width: '300px' }}>
-          <FaSearch 
-            className="position-absolute text-muted" 
-            style={{ left: '10px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px' }}
-          />
-          <input 
-            placeholder="Search for Assignments" 
-            id="wd-search-assignment"
-            className="form-control ps-5"
-            style={{ paddingLeft: '35px' }}
-          />
+        <div className="d-flex align-items-center border rounded px-3 py-2 me-3" style={{ maxWidth: "300px" }}>
+          <FaSearch className="me-2 text-muted" />
+          <FormControl placeholder="Search..." className="border-0 shadow-none p-0" />
         </div>
-       
-        <div className="d-flex gap-2">
-          <button 
-            id="wd-add-assignment-group" 
-            className="btn btn-outline-secondary"
+        <div className="d-flex align-items-center">
+          <Button
+            className="me-2 d-flex align-items-center btn-secondary"
+            onClick={() => currentUser?.role === "FACULTY" && router.push(`/Courses/${courseId}/Assignments/new-group`)}
           >
-            <BsPlus size={20} className="me-1" /> Group
-          </button>
-          <Link 
-            href={`/Courses/${cid}/Assignments/new`}
-            className="btn btn-danger"
-            id="wd-add-assignment"
+            <BsPlus className="me-1 fs-5" /> Group
+          </Button>
+          <Button
+            variant="danger"
+            className="text-white d-flex align-items-center"
+            onClick={() => currentUser?.role === "FACULTY" && router.push(`/Courses/${courseId}/Assignments/new`)}
           >
-            <BsPlus size={20} className="me-1" /> Assignment
-          </Link>
+            <BsPlus className="me-1 fs-5" /> Assignment
+          </Button>
         </div>
       </div>
 
-      <ul className="list-group rounded-0" id="wd-assignment-list">
-        <li className="list-group-item p-0 mb-5 fs-5 border-gray">
-          <div className="wd-title p-3 ps-2 bg-secondary d-flex justify-content-between align-items-center">
-            <div>
-              <BsGripVertical size={24} className="me-2" />
-              <strong>ASSIGNMENTS</strong>
-              <span className="ms-2" style={{ fontSize: '0.8rem' }}>40% of Total</span>
-            </div>
-            <div>
-              <button className="btn btn-outline-secondary btn-sm me-2">
-                <BsPlus size={20} />
-              </button>
-            </div>
+      <ListGroup className="rounded-0" id="wd-assignments-list">
+        <ListGroupItem className="wd-module p-0 mb-5 fs-5 border-gray">
+          <div className="wd-title d-flex justify-content-between align-items-center px-3 py-3 rounded bg-light border-bottom border-dark">
+            <span className="d-flex align-items-center">
+              <BsGripVertical className="me-2 fs-3" />
+              <FaCaretDown className="me-2" />
+              <span className="fw-bold fs-6">ASSIGNMENTS</span>
+            </span>
+            <AssignmentControlButtons />
           </div>
-          
-          <ul className="list-group rounded-0">
-            {assignments.map((assignment: any) => (
-              <li 
-                key={assignment._id}
-                className="list-group-item wd-assignment-list-item p-3 ps-1 d-flex justify-content-between align-items-center"
+
+          <ListGroup className="wd-lessons rounded-0 mt-0">
+            {assignments.map((item: any, idx: number) => (
+              <ListGroupItem
+                key={idx}
+                className="wd-lesson d-flex justify-content-between align-items-start px-3 py-3"
+                style={{ borderLeft: "3px solid green" }}
               >
-                <div className="d-flex align-items-start flex-grow-1">
-                  <div 
-                    className="me-3" 
-                    style={{ 
-                      borderLeft: '4px solid green', 
-                      paddingLeft: '10px' 
-                    }}
-                  >
-                    <BsGripVertical size={24} className="me-2 text-muted" />
-                  </div>
-                  <div className="flex-grow-1">
-                    <Link 
-                      href={`/Courses/${cid}/Assignments/${assignment._id}`}
-                      className="wd-assignment-link text-decoration-none fw-bold text-dark"
+                <div className="d-flex align-items-start">
+                  <BsGripVertical className="me-3 fs-4 text-secondary mt-1" />
+                  <MdOutlineAssignment className="me-3 text-success fs-5 mt-1" />
+                  <div>
+                    <div
+                      className="fw-bold mb-1 d-block text-decoration-none text-dark"
+                      style={{ cursor: currentUser?.role === "FACULTY" ? "pointer" : "default" }}
+                      onClick={() => currentUser?.role === "FACULTY" && router.push(`/Courses/${courseId}/Assignments/${item._id}`)}
                     >
-                      {assignment.title}
-                    </Link>
-                    <div className="text-muted small mt-1">
-                      <span className="text-danger">Multiple modules</span> | 
-                      <strong> not available until</strong> {assignment.availableFrom} | 
-                      <strong> Due</strong> {assignment.dueDate} | 
-                      {assignment.points} pts
+                      {item.title}
+                    </div>
+                    <div className="small text-muted">
+                      <span className="text-danger">Multiple Modules</span> |{" "}
+                      <span className="text-dark">
+                        <b>Not available until</b> {formatDate(item.availableDate)}
+                      </span>
+                      <br />
+                      <span className="text-dark">
+                        <b>Due</b> {formatDate(item.dueDate)} | {item.points} pts
+                      </span>
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDeleteAssignment(assignment._id);
-                  }}
-                  className="btn btn-danger btn-sm"
-                >
-                  <FaTrash />
-                </button>
-              </li>
+                <LessonControlButtons
+                  onDelete={() => handleDelete(item)}
+                  isFaculty={currentUser?.role === "FACULTY"}
+                />
+              </ListGroupItem>
             ))}
-          </ul>
-        </li>
-      </ul>
+          </ListGroup>
+        </ListGroupItem>
+      </ListGroup>
+
+      {/* Delete confirmation modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Assignment</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete <strong>{selectedAssignment?.title}</strong>?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Yes, Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
