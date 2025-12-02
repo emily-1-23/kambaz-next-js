@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useState, useEffect } from "react";
